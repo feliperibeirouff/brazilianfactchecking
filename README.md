@@ -20,7 +20,7 @@
 `bert_train_classifier.ipynb` - Given a dataset of claims with evidence, train a Bert classifier
 
 Trained models must be placed in the models folder, and can be obtained here:
-https://drive.google.com/drive/folders/1wZj_GJJ1O9goAPuYrTNahL2sE-jTk4Mm?usp=share_link
+https://github.com/feliperibeirouff/brazilianfactchecking/releases/tag/1.0.0
 
 ## To perform the fact-checking steps in a dataset:
 

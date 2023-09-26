@@ -23,14 +23,22 @@ class UrlExtractor:
       from selenium.webdriver.support import expected_conditions as EC
       print("inicializando driver do selenium")
       self.driver = webdriver.Firefox()
+      #self.driver.set_page_load_timeout(10)
     return self.driver
     
 
   def getSeleniumContent(self, url):
     driver = self.getDriver()
-    driver.get(url)    
+    try:
+      driver.get(url)
+    except:
+      print("Error executing selenium")
     title = driver.title
-    content = driver.find_element_by_tag_name('body').text
+    try:
+      content = driver.find_element_by_tag_name('body').text
+    except:
+      content = ''
+      print("Error driver.find_element_by_tag_name('body')")
     text = content
     text = re.sub(r'Leia também.*','', text, flags=re.S)
     return title + "\n" + text
@@ -49,7 +57,7 @@ class UrlExtractor:
         text = text[index+len('Entrar'):]
     return title + "\n" + text
 
-  def extract_url(self, url):
+  def extract_url_beautifulsoup(self, url):
       error = ""
       try:
           req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -102,27 +110,36 @@ class UrlExtractor:
               #print(chunk)
       return extracted_lines, error
 
+  def extract_url(self, url):
+    if "lupa" in url:
+      extracted_lines = [self.getLupaContent(url)]
+      error = ""
+    elif "exame.com" in url:
+      extracted_lines = [self.getSeleniumContent(url)]
+      error = ""
+    else:
+      extracted_lines, error = self.extract_url_beautifulsoup(url)
+      if 'Erro lendo url' in error or len(extracted_lines) == 0 or 'javascript' in extracted_lines[0].lower():
+        extracted_lines = [self.getSeleniumContent(url)]
+        error = ""
+    return extracted_lines, error
+
+  def extract_and_clean_url(self, url):
+    extracted_lines, error = self.extract_url(url)
+    clean_lines = []
+    for line in extracted_lines:
+      clean_line = preprocessing.tokenize_and_join(line)
+      if clean_line != '':
+        clean_lines.append(clean_line)
+    return extracted_lines, clean_lines, error
+
   def save_document(self, document, document_path, logwriter, replace): 
     if document['category'] != '' and 'ruim' not in document['category']:    
       if not os.path.exists(document_path) or replace:
         print(document['row'], document['claim_id'], document['rank'], document['found_url'], document['category'])
         url = document['found_url']
-        if "lupa" in url:
-          extracted_lines = [self.getLupaContent(url)]
-          error = ""
-        if "exame.com" in url:
-          extracted_lines = [self.getSeleniumContent(url)]
-          error = ""
-        else:
-          extracted_lines, error = self.extract_url(url)
-          if error == 'Erro lendo url' in error:
-            extracted_lines = [self.getSeleniumContent(url)]
-            error = ""
-        clean_lines = []
-        for line in extracted_lines:
-          clean_line = preprocessing.tokenize_and_join(line)
-          if clean_line != '':
-            clean_lines.append(clean_line)        
+        
+        extracted_lines, clean_lines, error = self.extract_and_clean_url(url)
         #print('clean', clean_lines)
 
         document_raw_path = document_path + '_raw.txt'

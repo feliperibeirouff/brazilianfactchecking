@@ -3,54 +3,74 @@ aosfatos.org	checagem de fatos
 apublica.org	checagem de fatos
 checamos.afp.com	checagem de fatos
 projetocomprova.com.br	checagem de fatos
-www.boatos.org	checagem de fatos
-www.e-farsas.com	checagem de fatos
+boatos.org	checagem de fatos
+e-farsas.com	checagem de fatos
 piaui.folha.uol.com.br/lupa	checagem de fatos
+lupa.uol.com.br	checagem de fatos
 pt.wikipedia.org	enciclopédia
-.gov.br	governo
-.jus.br	governo
-.abril.com.br	portal de notícias
-.bbc.com	portal de notícias
-.elpais.com	portal de notícias
-.estadao.com.br	portal de notícias
-.globo.com	portal de notícias
-.r7.com	portal de notícias
-.uol.com.br	portal de notícias
-.yahoo.com	portal de notícias
+gov.br	governo
+jus.br	governo
+abril.com.br	portal de notícias
+bbc.com	portal de notícias
+elpais.com	portal de notícias
+estadao.com.br	portal de notícias
+globo.com	portal de notícias
+r7.com	portal de notícias
+uol.com.br	portal de notícias
+yahoo.com	portal de notícias
 exame.com	portal de notícias
 ig.com.br	portal de notícias
 metropoles.com	portal de notícias
-www.cnnbrasil.com.br	portal de notícias
-.ufersa.edu.br	universidade
-.ufes.br	universidade
-.ufg.br	universidade
-.ufmg.br	universidade
-.ufpe.br	universidade
-.ufpr.br	universidade
-.ufrgs.br	universidade
-.ufrpe.br	universidade
-.ufsc.br	universidade
-.uneb.br	universidade
-.unicamp.br	universidade
-.usp.br	universidade
-.uff.br	universidade
-www.reclameaqui.com.br	ruim (rede social)
+cnnbrasil.com.br	portal de notícias
+ufersa.edu.br	universidade
+ufes.br	universidade
+ufg.br	universidade
+ufmg.br	universidade
+ufpe.br	universidade
+ufpr.br	universidade
+ufrgs.br	universidade
+ufrpe.br	universidade
+ufsc.br	universidade
+uneb.br	universidade
+unicamp.br	universidade
+usp.br	universidade
+uff.br	universidade
+reclameaqui.com.br	ruim (rede social)
 github.com	ruim (rede social)
-www.youtube.com	ruim (rede social)
+youtube.com	ruim (rede social)
 facebook.com	ruim (rede social)
-www.reddit.com	ruim (rede social)
+reddit.com	ruim (rede social)
 twitter.com	ruim (rede social)
 comunidade.nubank.com.br	ruim (rede social)
-www.letras.mus.br	ruim (letra de música)
+letras.mus.br	ruim (letra de música)
 whatsapp.com	ruim (rede social)
 .gov/	ruim (outro idioma)
-www.terra.com.br	portal de notícias
+terra.com.br	portal de notícias
 olhardigital.com.br	portal de notícias
-www.gazetadopovo.com.br	portal de notícias
-www.linkedin.com	ruim (rede social)
-.fiocruz.br	governo
+gazetadopovo.com.br	portal de notícias
+linkedin.com	ruim (rede social)
+fiocruz.br	governo
 mendeley.com	ruim (outro idioma)
 istoe.com.br	portal de notícias
-www.unicef.org	ruim (outro idioma)
-.tecmundo.com.br	portal de notícias
-.folhape.com.br	portal de notícias
+unicef.org	ruim (outro idioma)
+tecmundo.com.br	portal de notícias
+folhape.com.br	portal de notícias
+ufmt.br	universidade
+ufms.br	universidade
+ufba.br	universidade
+ufpb.br	universidade
+ufal.br	universidade
+ufs.br	universidade
+ufc.br	universidade
+ufma.br	universidade
+ufrn.br	universidade
+ufrr.br	universidade
+ufac.br	universidade
+unifap.br	universidade
+ufrj.br	universidade
+unb.br	universidade
+ufgd.edu.br	universidade
+ufcat.edu.br	universidade
+ufr.edu.br	universidade
+ime.eb.br	universidade
+ime.eb.mil.br	universidade

@@ -4,6 +4,7 @@ from sentence_transformers import SentenceTransformer
 import os
 from scipy import spatial
 from strategies import EvidenceSelectStrategy
+import copy
 
 def cos_similarity(sent1_emb, sent2_emb):
   return 1 - spatial.distance.cosine(sent1_emb, sent2_emb)
@@ -31,11 +32,6 @@ class SbertEncoder:
     sentences = claim.split('\n')
     encoded = self.modelsbert.encode(sentences)
     return torch.mean(torch.Tensor(encoded), dim=0)
-
-  def sbert_sentence_embedding_total(self, claim):
-    sentences = claim.split('\n')
-    encoded = self.modelsbert.encode(sentences)
-    return encoded
 
   def save_sbert_document(self, document_path, sbert_path):    
     if not os.path.exists(sbert_path):
@@ -85,7 +81,7 @@ class EvidenceSelector:
         results_claim = results_claim[:maxDocuments]
     return results_claim
 
-  def calculaSimilaridades(self, claim_sbert, document):
+  def calculateSimilarities(self, claim_sbert, document):
     doc_sbert_path = document_sbert_path(document, self.urls_directory)
     if not os.path.exists(doc_sbert_path):
         return []
@@ -93,10 +89,12 @@ class EvidenceSelector:
     document_path = document_extrated_path(document, self.urls_directory)
     f = open(document_path, "r", encoding="utf-8")
     document_lines = f.readlines()  
+    document_lines = [row.replace('\0', '') for row in document_lines]
     similarities = []
     LIMIT_QUOTE = 0.95
     document_has_quotes = False
     for row, sentence_sbert in enumerate(document_sbert):
+        #print('row:', row, 'line:', document_lines[row])
         quote = False
         similarity = cos_similarity(claim_sbert, sentence_sbert)    
         if similarity > LIMIT_QUOTE:
@@ -105,6 +103,8 @@ class EvidenceSelector:
         evidence = {'url': document['found_url'], 'row': row, 'text': document_lines[row].strip(),
           'value': similarity, 'quote': quote, 'doc_has_quotes': 0, 'doc_title':document_lines[0].strip()}
         similarities.append(evidence)
+        if self.only_title: #Return only the first line, that has the title
+           break
     if document_has_quotes:
         for s in similarities:
             s['doc_has_quotes'] = 1
@@ -114,7 +114,7 @@ class EvidenceSelector:
     #Calcula similaridades 
     similarities = []
     for document in retrieved_documents:
-        similarities += self.calculaSimilaridades(claim_sbert, document)
+      similarities += self.calculateSimilarities(claim_sbert, document)
     similarities.sort(key=sortFunction)
 
     for similarity in similarities:
@@ -139,8 +139,8 @@ class EvidenceSelector:
         retrieved_documents = self.retrieveDocuments(claim, documents)
         evidences = self.retrieveEvidences(claim, claim_sbert, retrieved_documents)[:5]
         for evidence in evidences:
-            if self.include_title:
-              evidence['text'] = evidence['doc_title'] + ". " + evidence['text']
+            if self.include_title and not evidence['text'].startswith(evidence['doc_title']):
+              evidence['text'] = evidence['doc_title'] + ".\n " + evidence['text']
             #print(evidence)
             d = {'claim_row': claim_row, 'claim_id': claim['id'], 'claim_clean': claim['claim_clean'], 'found_url': evidence['url'], 
             'evidence_clean': evidence['text'], 'evidence_row': evidence['row'], 'doc_rank': evidence['rank'],
@@ -158,10 +158,13 @@ class EvidenceSelectorWithContext(EvidenceSelector):
     similarities_by_doc = {}
     similarities = []
     for document in retrieved_documents:
-        doc_similarities = self.calculaSimilaridades(claim_sbert, document)
+        doc_similarities = self.calculateSimilarities(claim_sbert, document)
         similarities += doc_similarities
         similarities_by_doc[document['rank']] = doc_similarities
     similarities.sort(key=sortFunction)
+
+    #ensure that changes made to the text of the sentence will not alter the context of the other sentences
+    similarities_by_doc = copy.deepcopy(similarities_by_doc)
 
     for similarity in similarities:
         for result in retrieved_documents:
@@ -170,9 +173,9 @@ class EvidenceSelectorWithContext(EvidenceSelector):
 
     for s in similarities[:5]:
       doc_sentences = similarities_by_doc[s['rank']]
-      doc_sentences_filtered = doc_sentences[s['row'] + 1: s['row'] + self.context_sentences]      
-      if self.remove_quotes:
-         context = '\n'.join([s['text'] for s in doc_sentences_filtered])
+      doc_sentences_filtered = doc_sentences[s['row'] + 1: s['row'] + self.context_sentences]
+      if self.remove_quotes and s['quote']:
+        context = '\n'.join([s['text'] for s in doc_sentences_filtered])
       else:
         context = s['text'] + ' . ' + '\n'.join([s['text'] for s in doc_sentences_filtered])      
       s['text'] = context
@@ -198,7 +201,7 @@ class EvidenceSnippets(EvidenceSelector):
             snippet = item['snippet']
             evidence = {'url': document['found_url'], 'row': 0, 'text': snippet.strip(),
             'value': 0, 'quote': False, 'doc_has_quotes': 0, 'doc_title': item['title'], 'rank': rank}
-            if self.include_title:
+            if self.include_title and not evidence['text'].startswith(evidence['doc_title']):
                evidence['text'] = evidence['doc_title'] + "\n" + evidence['text']
             evidences.append(evidence)
           else:
@@ -225,7 +228,7 @@ def get_evidence_selector(strategy, urls_directory):
   elif strategy == EvidenceSelectStrategy.TitleContext5NoQuotes:
     return EvidenceSelectorWithContext(urls_directory, include_title=True, remove_quotes=True)
   elif strategy == EvidenceSelectStrategy.OnlyTitle:
-    return EvidenceSelector(urls_directory, include_title=True)
+    return EvidenceSelector(urls_directory, only_title=True)
   elif strategy == EvidenceSelectStrategy.Snippets:
      return EvidenceSnippets(urls_directory)
   elif strategy == EvidenceSelectStrategy.TitleSnippets:
